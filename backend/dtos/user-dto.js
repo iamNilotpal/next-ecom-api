@@ -6,6 +6,7 @@ class UserDto {
     this.cart = user.cart;
     this.purchasedItems = user.purchasedItems;
     this.address = user.address;
+    this.createAt = user.createAt;
   }
 }
 
