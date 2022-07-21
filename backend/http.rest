@@ -1,0 +1,30 @@
+@baseUrl = http://localhost:8000/api
+
+
+### Register User
+POST {{baseUrl}}/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "firstName": "Nilotpal",
+  "lastName": "Deka",
+  "email": "iamnilotpaldeka@gmail.com",
+  "phone": "8399049174",
+  "password": "password",
+  "address": {
+    "pincode": "781121",
+    "town": "Guwahati",
+    "state": "Assam"
+  }
+}
+
+### Login User
+POST  {{baseUrl}}/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "iamnilotpaldeka@gmail.com",
+  "password": "password"
+}
