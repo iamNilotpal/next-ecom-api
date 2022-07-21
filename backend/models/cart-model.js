@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const joi = require('joi');
+const Joi = require('joi');
 const { ProductSchema } = require('./product-model');
 
 const ItemSchema = new mongoose.Schema(
@@ -30,22 +30,22 @@ const CartSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const CartValidation = joi.object({
-  product: joi
-    .object({
-      name: joi.string().trim().required(),
-      description: joi.string().trim().required(),
-      price: joi.number().required(),
-      image: joi.string().uri().trim().required(),
-      rating: joi
-        .object({
-          rate: joi.number().required(),
-          couunt: joi.number().required(),
-        })
-        .required(),
-      quantity: joi.number().min(1).required(),
+const CartValidation = Joi.object({
+  product: Joi.object({
+    name: Joi.string().trim().required().label('Product name'),
+    description: Joi.string().trim().required().label('Product description'),
+    price: Joi.number().required().label('Product price'),
+    image: Joi.string().uri().trim().required().label('Product image'),
+    rating: Joi.object({
+      rate: Joi.number().required().label('Product rate'),
+      count: Joi.number().required().label('Product rate count'),
     })
-    .required(),
+      .messages({ 'object.base': 'Product ratings are required.' })
+      .required(),
+    quantity: Joi.number().min(1).required().label('Product quantity'),
+  })
+    .required()
+    .label('Product'),
 });
 
 const Cart = mongoose.model('Cart', CartSchema);

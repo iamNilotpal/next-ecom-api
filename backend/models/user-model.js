@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const joi = require('joi');
+const Joi = require('joi');
 
 const AddressSchema = new mongoose.Schema(
   {
-    pin: { type: Number, required: true },
+    pincode: { type: Number, required: true },
     state: { type: String, required: true },
     town: { type: String, required: true },
   },
@@ -15,6 +15,7 @@ const UserSchema = new mongoose.Schema(
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, unique: true, required: true },
+    phone: { type: String, required: true },
     password: { type: String, required: true },
     address: { type: AddressSchema, required: true },
     cart: {
@@ -31,16 +32,19 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const UserValidation = joi.object({
-  firstName: joi.string().trim().required(),
-  lastName: joi.string().trim().required(),
-  email: joi.string().email().trim().required(),
-  password: joi.string().min(5).trim().required(),
-  address: joi
-    .object({
-      pin: joi.string().trim().required(),
-      state: joi.string().trim().required(),
-      town: joi.string().trim().required(),
+const UserValidation = Joi.object({
+  firstName: Joi.string().trim().required().label('First name'),
+  lastName: Joi.string().trim().required().label('Last name'),
+  email: Joi.string().email().trim().required().label('Email'),
+  phone: Joi.string().trim().required().label('Phone number'),
+  password: Joi.string().min(5).trim().required().label('Password'),
+  address: Joi.object({
+    pincode: Joi.string().trim().required().label('Pincode'),
+    state: Joi.string().trim().required().label('State'),
+    town: Joi.string().trim().required().label('Town'),
+  })
+    .messages({
+      'object.base': 'Address must contain pincode, town and state.',
     })
     .required(),
 });
