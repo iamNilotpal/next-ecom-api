@@ -72,11 +72,11 @@ class TokenService {
   }
 
   async findRefreshToken(token, userId) {
-    return RefreshToken.findOne({ token, userId });
+    return RefreshToken.findOne({ token, userId }).exec();
   }
 
   async deleteRefreshToken(token) {
-    return RefreshToken.deleteOne({ token });
+    return RefreshToken.deleteOne({ token }).exec();
   }
 }
 
