@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const authController = require('./controllers/auth-controller');
+const cartController = require('./controllers/cart-controller');
 const productsController = require('./controllers/products-controller');
 const authMiddleware = require('./middlewares/auth-middleware');
 
@@ -11,6 +12,8 @@ router.get('/refresh-token', authController.refreshToken);
 
 /* --------- Product ---------- */
 router.get('/products', productsController.allProducts);
-router.post('/add-to-cart', authMiddleware, productsController.addToCart);
+
+/* --------- Cart ---------- */
+router.post('/add-to-cart', authMiddleware, cartController.addToCart);
 
 module.exports = router;
