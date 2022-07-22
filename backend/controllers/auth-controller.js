@@ -65,6 +65,57 @@ class AuthController {
       next(error);
     }
   }
+
+  async logout(req, res) {
+    try {
+      const { refreshToken } = req.cookies;
+
+      tokenService.clearCookie(res, 'accessToken');
+      tokenService.clearCookie(res, 'refreshToken');
+
+      await tokenService.deleteRefreshToken(refreshToken);
+      return res.status(200).json({ ok: true, user: null });
+    } catch (error) {
+      tokenService.clearCookie(res, 'accessToken');
+      tokenService.clearCookie(res, 'refreshToken');
+      return res.status(200).json({
+        ok: true,
+        user: null,
+      });
+    }
+  }
+
+  async refreshToken(req, res, next) {
+    try {
+      const { refreshToken: token } = req.cookies;
+      if (!token) return next(httpErrors.BadRequest('Token must be provided.'));
+
+      const data = await tokenService.verifyRefreshToken(token);
+      if (!data) return next(httpErrors.Unauthorized('Token expired.'));
+
+      const tokenData = await tokenService.findRefreshToken(token, data.id);
+      if (!tokenData) return next(httpErrors.Unauthorized('Token expired.'));
+
+      const user = await userService.findUser({ _id: tokenData.userId });
+      if (!user) return next(httpErrors.NotFound("User doesn't exist."));
+
+      await tokenData.remove();
+      const accessToken = await tokenService.accessToken({ id: user._id });
+      const refreshToken = await tokenService.refreshToken({ id: user._id });
+
+      tokenService.setAccessToken(res, accessToken);
+      tokenService.setRefreshToken(res, refreshToken);
+
+      return res.status(200).json({
+        ok: true,
+        user: new UserDto(user),
+      });
+    } catch (error) {
+      if (['TokenExpiredError', 'JsonWebTokenError'].includes(error.name))
+        error.message = 'Session expired. Login again.';
+      next(error);
+    }
+  }
 }
 
 module.exports = new AuthController();
