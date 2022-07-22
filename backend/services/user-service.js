@@ -18,7 +18,19 @@ class UserServices {
   }
 
   async findUser(filter) {
-    return User.findOne(filter);
+    return User.findOne(filter).exec();
+  }
+
+  async addToCart(user, cart, quantity) {
+    const item = user.cart.cartItems.find(
+      (item) => item.id.toString() === cart._id.toString()
+    );
+
+    if (!item) user.cart.cartItems.push({ id: cart._id, count: quantity });
+    else item.count += quantity;
+    user.cart.cartItemsMeta.cartItemsCount = cart.productsCount;
+    user.cart.cartItemsMeta.subTotal = cart.subtotal;
+    return user.save();
   }
 }
 
