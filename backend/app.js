@@ -1,6 +1,8 @@
 const express = require('express');
 const httpErrors = require('http-errors');
 const cookieParser = require('cookie-parser');
+const Joi = require('joi');
+Joi.ObjectId = require('joi-objectid')(Joi);
 
 const app = express();
 

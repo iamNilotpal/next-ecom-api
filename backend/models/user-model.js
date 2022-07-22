@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
 
+/* Defines User Address */
 const AddressSchema = new mongoose.Schema(
   {
     pincode: { type: Number, required: true },
@@ -10,6 +11,16 @@ const AddressSchema = new mongoose.Schema(
   { _id: false }
 );
 
+/* Defines Cart Items and Purchased Products */
+const ItemsSchema = new mongoose.Schema(
+  {
+    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Cart', required: true },
+    count: { type: Number, min: 0, default: 0 },
+  },
+  { _id: false }
+);
+
+/* Defines User Properties */
 const UserSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: true },
@@ -20,8 +31,7 @@ const UserSchema = new mongoose.Schema(
     address: { type: AddressSchema, required: true },
     cart: {
       cartItems: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: 'Cart',
+        type: [ItemsSchema],
         default: [],
       },
       cartItemsMeta: {
@@ -31,7 +41,7 @@ const UserSchema = new mongoose.Schema(
     },
     purchasedProducts: {
       purchasedItems: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [ItemsSchema],
         ref: 'Products',
         default: [],
       },
