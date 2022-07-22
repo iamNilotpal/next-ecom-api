@@ -19,14 +19,26 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     address: { type: AddressSchema, required: true },
     cart: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: 'Cart',
-      default: [],
+      cartItems: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'Cart',
+        default: [],
+      },
+      cartItemsMeta: {
+        cartItemsCount: { type: Number, min: 0, default: 0 },
+        subTotal: { type: Number, default: 0 },
+      },
     },
-    purchasedItems: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: 'Products',
-      default: [],
+    purchasedProducts: {
+      purchasedItems: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'Products',
+        default: [],
+      },
+      purchasedProductsMeta: {
+        purchasedItemsCount: { type: Number, min: 0, default: 0 },
+        subTotal: { type: Number, default: 0 },
+      },
     },
   },
   { timestamps: true }
