@@ -4,9 +4,9 @@ class UserDto {
     this.fullName = user.fullName;
     this.email = user.email;
     this.cart = user.cart;
-    this.purchasedItems = user.purchasedItems;
+    this.purchasedProducts = user.purchasedProducts;
     this.address = user.address;
-    this.createAt = user.createAt;
+    this.createdAt = user.createdAt;
   }
 }
 

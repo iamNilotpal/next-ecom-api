@@ -1,7 +1,6 @@
 const util = require('util');
 const JWT = require('jsonwebtoken');
 const RefreshToken = require('../models/token-model');
-const { createVerify } = require('crypto');
 
 const signToken = util.promisify(JWT.sign);
 const verifyToken = util.promisify(JWT.verify);
