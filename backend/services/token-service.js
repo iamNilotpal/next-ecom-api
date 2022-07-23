@@ -59,8 +59,9 @@ class TokenService {
     });
   }
 
-  clearCookie(res, key) {
-    res.clearCookie(key);
+  clearCookies(res) {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
   }
 
   async verifyAccessToken(token) {
