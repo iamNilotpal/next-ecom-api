@@ -16,5 +16,7 @@ router.get('/products', productsController.allProducts);
 /* --------- Cart ---------- */
 router.get('/cart', authMiddleware, cartController.getCart);
 router.post('/add-to-cart', authMiddleware, cartController.addToCart);
+router.patch('/update-cart', authMiddleware, cartController.updateCart);
+router.delete('/remove', authMiddleware, cartController.removeCartItem);
 
 module.exports = router;

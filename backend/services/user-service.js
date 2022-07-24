@@ -1,5 +1,5 @@
 const { User, UserValidation } = require('../models/user-model');
-const { JoiValidateOptions } = require('../utils');
+const { JoiValidateOptions, ADD_TO_CART } = require('../utils');
 const hashService = require('./hash-service');
 
 class UserServices {
@@ -22,15 +22,38 @@ class UserServices {
   }
 
   async addToCart(user, cart, quantity) {
-    const item = user.cart.cartItems.find(
-      (item) => item.id.toString() === cart._id.toString()
-    );
-
+    const item = this.findCartItem(user, cart);
     if (!item) user.cart.cartItems.push({ id: cart._id, count: quantity });
     else item.count += quantity;
     user.cart.cartItemsMeta.cartItemsCount = cart.productsCount;
     user.cart.cartItemsMeta.subTotal = cart.subtotal;
     return user.save();
+  }
+
+  async updateCartItem(data) {
+    const { user, cart, quantity, type } = data;
+    const item = this.findCartItem(user, cart);
+
+    if (type === ADD_TO_CART) item.count += +quantity;
+    else item.count -= +quantity;
+
+    user.cart.cartItemsMeta.cartItemsCount = cart.productsCount;
+    user.cart.cartItemsMeta.subTotal = cart.subtotal;
+    return user.save();
+  }
+
+  async updateCart(user, cart) {
+    const item = this.findCartItem(user, cart);
+    item.count = cart.productsCount;
+    user.cart.cartItemsMeta.cartItemsCount = cart.productsCount;
+    user.cart.cartItemsMeta.subTotal = cart.subtotal;
+    return user.save();
+  }
+
+  findCartItem(user, cart) {
+    return user.cart.cartItems.find(
+      (item) => item.id.toString() === cart._id.toString()
+    );
   }
 }
 

@@ -1,5 +1,7 @@
 const { Cart } = require('../models/cart-model');
 const productService = require('./product-service');
+const httpErrors = require('http-errors');
+const { REMOVE_FROM_CART, ADD_TO_CART } = require('../utils');
 
 class CartService {
   async findCart(filter) {
@@ -49,6 +51,72 @@ class CartService {
     cart.productsCount += productInfo.quantity;
     cart.products.push(newProduct);
     return cart.save();
+  }
+
+  async updateCart(data) {
+    const cart = await Cart.findOne({
+      customerId: data.customerId,
+    });
+
+    let price, product;
+    cart.products = cart.products.map((item) => {
+      if (item.productId.toString() !== data.productId.toString()) return item;
+
+      if (data.type === REMOVE_FROM_CART && item.quantity < data.quantity)
+        throw httpErrors.BadRequest('Bhai kiya kr rha hai tu.');
+
+      if (data.type === REMOVE_FROM_CART && item.quantity - data.quantity < 1)
+        throw httpErrors.BadRequest('Atleast one item should be present.');
+
+      if (data.quantity !== Math.abs(data.quantity))
+        throw httpErrors.BadRequest('Bhai kiya kr rha hai tu.');
+
+      product = item;
+      if (data.type === ADD_TO_CART) {
+        price = Number(data.quantity) * (item.totalPrice / item.quantity);
+        item.totalPrice += price;
+        item.quantity += +data.quantity;
+      } else {
+        price = Number(data.quantity) * (item.totalPrice / item.quantity);
+        item.totalPrice -= price;
+        item.quantity -= +data.quantity;
+      }
+
+      return item;
+    });
+
+    if (!product) throw httpErrors.NotFound("Product doesn't exist in cart.");
+
+    if (data.type === ADD_TO_CART) {
+      cart.productsCount += data.quantity;
+      cart.subtotal += price;
+    } else {
+      cart.productsCount -= data.quantity;
+      cart.subtotal -= price;
+    }
+    return cart.save();
+  }
+
+  async removeCartItem(customerId, productId) {
+    const cart = await Cart.findOne({ customerId }).exec();
+
+    const index = cart.products.findIndex(
+      (item) => item.productId.toString() === productId.toString()
+    );
+
+    const product = cart.products[index];
+    if (!product) throw httpErrors.NotFound("Product doesn't exist in cart.");
+
+    cart.products.splice(index, 1);
+    cart.productsCount -= product.quantity;
+    cart.subtotal -= product.totalPrice;
+    return cart.save();
+  }
+
+  checkUserCart(user) {
+    const { cart } = user;
+    if (cart.cartItems.length === 0 || cart.cartItemsMeta.cartItemsCount === 0)
+      throw httpErrors.BadRequest('Cart is empty.');
   }
 }
 

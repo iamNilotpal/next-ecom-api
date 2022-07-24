@@ -12,7 +12,6 @@ const ItemSchema = new mongoose.Schema(
     },
     quantity: { type: Number, min: 1, required: true },
     totalPrice: { type: Number, min: 0, required: true },
-    isActive: { type: Boolean, default: true, required: true },
   },
   { _id: false }
 );
