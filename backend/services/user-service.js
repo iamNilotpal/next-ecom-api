@@ -1,3 +1,4 @@
+const httpErrors = require('http-errors');
 const { User, UserValidation } = require('../models/user-model');
 const { JoiValidateOptions, ADD_TO_CART } = require('../utils');
 const hashService = require('./hash-service');
@@ -13,7 +14,7 @@ class UserServices {
       const user = new User({ ...data, password: hashedPassword });
       return user.save();
     } catch (error) {
-      throw error;
+      throw httpErrors.InternalServerError('Something went wrong. Try again.');
     }
   }
 
@@ -21,38 +22,58 @@ class UserServices {
     return User.findOne(filter).exec();
   }
 
-  async addToCart(user, cart, quantity) {
-    const item = this.findCartItem(user, cart);
-    if (!item) user.cart.cartItems.push({ id: cart._id, count: quantity });
-    else item.count += quantity;
+  async addToCart(user, cart, productInfo) {
+    //  First find the cart item in user cartItems array.
+    const item = this.findCartItem(user.cart.cartItems, productInfo.productId);
+    // case 1 -> Item doesn't exist push it to the array and update meatdata.
+    if (!item) {
+      user.cart.cartItems.push({
+        productId: productInfo.productId,
+        count: productInfo.quantity,
+      });
+      user.cart.cartItemsMeta.cartId = cart._id;
+    }
+    // case 2 -> Item exists update the item count and metadata.
+    else item.count += productInfo.quantity;
+
+    // Now update metadata
     user.cart.cartItemsMeta.cartItemsCount = cart.productsCount;
     user.cart.cartItemsMeta.subTotal = cart.subtotal;
     return user.save();
   }
 
   async updateCartItem(data) {
-    const { user, cart, quantity, type } = data;
-    const item = this.findCartItem(user, cart);
-
+    const { user, cart, quantity, type, productId } = data;
+    // First find the cart item in user cartItems array.
+    const item = this.findCartItem(user.cart.cartItems, productId);
+    //  case 1 -> If update operating is ADD_TO_CART then increase the item count.
     if (type === ADD_TO_CART) item.count += +quantity;
+    // case 2 -> If update operating is REMOVE_FROM_CART then decrease the item count.
     else item.count -= +quantity;
 
+    // Update metadata.
     user.cart.cartItemsMeta.cartItemsCount = cart.productsCount;
     user.cart.cartItemsMeta.subTotal = cart.subtotal;
     return user.save();
   }
 
-  async updateCart(user, cart) {
-    const item = this.findCartItem(user, cart);
-    item.count = cart.productsCount;
+  async removeFromCart(user, cart, productId) {
+    //   First find the cart item index in user cartItems array.
+    const index = user.cart.cartItems.findIndex(
+      (item) => item.productId.toString() === productId.toString()
+    );
+
+    // Remove it and update metadata.
+    user.cart.cartItems.splice(index, 1);
+    // Update metadata.
     user.cart.cartItemsMeta.cartItemsCount = cart.productsCount;
     user.cart.cartItemsMeta.subTotal = cart.subtotal;
     return user.save();
   }
 
-  findCartItem(user, cart) {
-    return user.cart.cartItems.find(
-      (item) => item.id.toString() === cart._id.toString()
+  findCartItem(cartItems, productId) {
+    return cartItems.find(
+      (item) => item.productId.toString() === productId.toString()
     );
   }
 }

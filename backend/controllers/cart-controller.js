@@ -10,7 +10,10 @@ class CartController {
   async getCart(req, res, next) {
     try {
       const { cart: userCart } = req.user;
-
+      /* If the meta details in user cart is empty that means user hasn't added
+        anything to cart. In that case we can return null and don't to make any
+        extra database query.
+      */
       if (userCart.cartItemsMeta.cartItemsCount === 0)
         return next(
           httpErrors.BadRequest({
@@ -28,20 +31,25 @@ class CartController {
         cart: new CartDto(cart),
       });
     } catch (error) {
-      console.log(error);
       next(httpErrors.InternalServerError());
     }
   }
 
   async addToCart(req, res, next) {
     try {
+      /* First validate the product details. If details are ok then find the product
+        by the provided id. If product doesn't exist send 404 error.
+      */
       const productInfo = await productService.validateProductInfo(req.body);
-      const product = await productService.findProduct({ _id: productInfo.id });
+      const product = await productService.findProduct({
+        _id: productInfo.productId,
+      });
       if (!product) return next(httpErrors.NotFound('Product not found.'));
 
+      /* Now add the product to user cart.*/
       const user = req.user;
       const cart = await cartService.addToCart(user, productInfo, product);
-      await userService.addToCart(user, cart, productInfo.quantity);
+      await userService.addToCart(user, cart, productInfo);
 
       return res.status(200).json({
         ok: true,
@@ -66,17 +74,15 @@ class CartController {
         return next(httpErrors.BadRequest('Invalid update operation.'));
 
       cartService.checkUserCart(req.user);
+      const data = { productId, type, quantity };
       const cart = await cartService.updateCart({
-        productId,
-        quantity,
-        type,
         customerId: req.user._id,
+        ...data,
       });
       await userService.updateCartItem({
         user: req.user,
         cart,
-        quantity,
-        type,
+        ...data,
       });
 
       return res.status(200).json({
@@ -84,8 +90,6 @@ class CartController {
         cart: new CartDto(cart),
       });
     } catch (error) {
-      console.log(error);
-
       if (!error.status) error.message = 'Failed to update cart.';
       next(error);
     }
@@ -98,14 +102,13 @@ class CartController {
 
       cartService.checkUserCart(req.user);
       const cart = await cartService.removeCartItem(req.user._id, productId);
-      await userService.updateCart(req.user, cart);
+      await userService.removeFromCart(req.user, cart, productId);
 
       return res.status(200).json({
         ok: true,
         cart: new CartDto(cart),
       });
     } catch (error) {
-      console.log(error);
       next(error);
     }
   }

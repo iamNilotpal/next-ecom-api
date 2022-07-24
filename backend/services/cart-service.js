@@ -54,10 +54,14 @@ class CartService {
   }
 
   async updateCart(data) {
-    const cart = await Cart.findOne({
+    // First get corresponding user's cart.
+    const cart = await this.findCart({
       customerId: data.customerId,
     });
 
+    // Loop over the products and find the product customer wants to update.
+    // SOME VALIDATION is required.
+    // Now update that product details in the cart as per the UPDATE Type.
     let price, product;
     cart.products = cart.products.map((item) => {
       if (item.productId.toString() !== data.productId.toString()) return item;
@@ -85,8 +89,10 @@ class CartService {
       return item;
     });
 
+    // If the product doesn't exist throw 404 Error
     if (!product) throw httpErrors.NotFound("Product doesn't exist in cart.");
 
+    // Now update cart metadata as per the UPDATE Type.
     if (data.type === ADD_TO_CART) {
       cart.productsCount += data.quantity;
       cart.subtotal += price;
@@ -98,15 +104,21 @@ class CartService {
   }
 
   async removeCartItem(customerId, productId) {
-    const cart = await Cart.findOne({ customerId }).exec();
+    // Find the user cart
+    const cart = await this.findCart({ customerId });
+    // Get the index of the product to remove
     const index = cart.products.findIndex(
       (item) => item.productId.toString() === productId.toString()
     );
 
+    // GET the product using index access.
     const product = cart.products[index];
+    // Throw 404 Error if it doesn't exist
     if (!product) throw httpErrors.NotFound("Product doesn't exist in cart.");
 
+    // Mutate the products array by deleting that product
     cart.products.splice(index, 1);
+    // Update cart metadata/
     cart.productsCount -= product.quantity;
     cart.subtotal -= product.totalPrice;
     return cart.save();
