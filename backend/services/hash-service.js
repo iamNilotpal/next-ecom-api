@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 
 class HashService {
   async hashPassword(password) {
-    return bcrypt.hash(password, 12);
+    return bcrypt.hash(password, 13);
   }
 
   async comparePassword(password, hashedPassword) {

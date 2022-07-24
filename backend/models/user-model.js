@@ -14,7 +14,11 @@ const AddressSchema = new mongoose.Schema(
 /* Defines Cart Items and Purchased Products */
 const ItemsSchema = new mongoose.Schema(
   {
-    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Cart', required: true },
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true,
+    },
     count: { type: Number, min: 0, default: 0 },
   },
   { _id: false }
@@ -35,6 +39,10 @@ const UserSchema = new mongoose.Schema(
         default: [],
       },
       cartItemsMeta: {
+        cartId: {
+          type: mongoose.Schema.Types.ObjectId,
+          unique: true,
+        },
         cartItemsCount: { type: Number, min: 0, default: 0 },
         subTotal: { type: Number, default: 0 },
       },

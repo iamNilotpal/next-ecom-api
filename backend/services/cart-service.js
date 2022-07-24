@@ -99,7 +99,6 @@ class CartService {
 
   async removeCartItem(customerId, productId) {
     const cart = await Cart.findOne({ customerId }).exec();
-
     const index = cart.products.findIndex(
       (item) => item.productId.toString() === productId.toString()
     );

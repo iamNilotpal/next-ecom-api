@@ -32,7 +32,7 @@ const CartSchema = new mongoose.Schema(
 );
 
 const CartValidation = Joi.object({
-  id: Joi.ObjectId().required().label('Product id'),
+  productId: Joi.ObjectId().required().label('Product id'),
   quantity: Joi.number().min(1).required().label('Product quantity'),
 });
 
