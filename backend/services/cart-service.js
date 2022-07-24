@@ -6,6 +6,10 @@ class CartService {
     return Cart.findOne(filter).exec();
   }
 
+  async getCartItems(filter) {
+    return Cart.findOne(filter).lean().exec();
+  }
+
   async addToCart(user, productInfo, storedProduct) {
     const cart = await this.findCart({ customerId: user._id });
 

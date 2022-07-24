@@ -1,9 +1,28 @@
 const httpErrors = require('http-errors');
 const productService = require('../services/product-service');
 const userService = require('../services/user-service');
+const cartService = require('../services/cart-service');
 const UserDto = require('../dtos/user-dto');
+const CartDto = require('../dtos/cart-dto');
 
 class CartController {
+  async getCart(req, res, next) {
+    try {
+      const cart = await cartService.getCartItems({
+        customerId: req.user._id,
+      });
+
+      cart.products = cart.products.filter((p) => p.isActive);
+      return res.status(200).json({
+        ok: true,
+        cart: new CartDto(cart),
+      });
+    } catch (error) {
+      console.log(error);
+      next(httpErrors.InternalServerError());
+    }
+  }
+
   async addToCart(req, res, next) {
     try {
       const productInfo = await productService.validateProductInfo(req.body);
@@ -11,7 +30,7 @@ class CartController {
       if (!product) return next(httpErrors.NotFound('Product not found.'));
 
       const user = req.user;
-      const cart = await productService.addToCart(user, productInfo, product);
+      const cart = await cartService.addToCart(user, productInfo, product);
       await userService.addToCart(user, cart, productInfo.quantity);
 
       return res.status(200).json({
