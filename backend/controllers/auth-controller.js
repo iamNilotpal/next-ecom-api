@@ -24,7 +24,7 @@ class AuthController {
       tokenService.setRefreshToken(res, refreshToken);
 
       return res.status(201).json({
-        ok: true,
+        success: true,
         user: new UserDto(user),
       });
     } catch (error) {
@@ -58,7 +58,7 @@ class AuthController {
       tokenService.setRefreshToken(res, refreshToken);
 
       return res.status(200).json({
-        ok: true,
+        success: true,
         user: new UserDto(user),
       });
     } catch (error) {
@@ -72,11 +72,13 @@ class AuthController {
 
       tokenService.clearCookies(res);
       await tokenService.deleteRefreshToken(refreshToken);
-      return res.status(200).json({ ok: true, user: null });
+      return res.status(200).json({ success: true, user: null });
     } catch (error) {
       tokenService.clearCookies(res);
+      // Retrying to delete refresh token
+      await tokenService.deleteRefreshToken(refreshToken);
       return res.status(200).json({
-        ok: true,
+        success: true,
         user: null,
       });
     }
@@ -104,7 +106,7 @@ class AuthController {
       tokenService.setRefreshToken(res, refreshToken);
 
       return res.status(200).json({
-        ok: true,
+        success: true,
         user: new UserDto(user),
       });
     } catch (error) {

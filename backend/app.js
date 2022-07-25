@@ -22,13 +22,13 @@ app.use((req, res, next) => next(httpErrors.NotFound()));
 app.use((error, req, res, next) => {
   if (error.status === 404)
     return res.status(404).json({
-      ok: false,
+      success: false,
       error: error.message || 'Not Found.',
       statusCode: 404,
     });
   else
     return res.status(error.status || 500).json({
-      ok: false,
+      success: false,
       statusCode: error.status || 500,
       error: error.message || 'Internal Server Error.',
     });

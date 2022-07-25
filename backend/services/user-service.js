@@ -71,6 +71,16 @@ class UserServices {
     return user.save();
   }
 
+  async clearCart(user) {
+    user.cart.cartItems = [];
+    user.cart.cartItemsMeta = {
+      ...user.cart.cartItemsMeta,
+      cartItemsCount: 0,
+      subTotal: 0,
+    };
+    return user.save();
+  }
+
   findCartItem(cartItems, productId) {
     return cartItems.find(
       (item) => item.productId.toString() === productId.toString()

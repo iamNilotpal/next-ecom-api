@@ -124,6 +124,11 @@ class CartService {
     return cart.save();
   }
 
+  async clearCart(customerId) {
+    const cart = await this.findCart({ customerId });
+    return cart.remove();
+  }
+
   checkUserCart(user) {
     const { cart } = user;
     if (cart.cartItems.length === 0 || cart.cartItemsMeta.cartItemsCount === 0)

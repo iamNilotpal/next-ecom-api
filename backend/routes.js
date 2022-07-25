@@ -18,5 +18,6 @@ router.get('/cart', authMiddleware, cartController.getCart);
 router.post('/add-to-cart', authMiddleware, cartController.addToCart);
 router.patch('/update-cart', authMiddleware, cartController.updateCart);
 router.delete('/remove', authMiddleware, cartController.removeCartItem);
+router.delete('/clear-cart', authMiddleware, cartController.clearCart);
 
 module.exports = router;

@@ -15,19 +15,17 @@ class CartController {
         extra database query.
       */
       if (userCart.cartItemsMeta.cartItemsCount === 0)
-        return next(
-          httpErrors.BadRequest({
-            ok: false,
-            cart: null,
-          })
-        );
+        return res.status(200).json({
+          success: true,
+          cart: null,
+        });
 
       const cart = await cartService.getCartItems({
         customerId: req.user._id,
       });
 
       return res.status(200).json({
-        ok: true,
+        success: true,
         cart: new CartDto(cart),
       });
     } catch (error) {
@@ -52,7 +50,7 @@ class CartController {
       await userService.addToCart(user, cart, productInfo);
 
       return res.status(200).json({
-        ok: true,
+        success: true,
         user: new UserDto(user),
       });
     } catch (error) {
@@ -86,7 +84,7 @@ class CartController {
       });
 
       return res.status(200).json({
-        ok: true,
+        success: true,
         cart: new CartDto(cart),
       });
     } catch (error) {
@@ -105,11 +103,28 @@ class CartController {
       await userService.removeFromCart(req.user, cart, productId);
 
       return res.status(200).json({
-        ok: true,
+        success: true,
         cart: new CartDto(cart),
       });
     } catch (error) {
       next(error);
+    }
+  }
+
+  async clearCart(req, res, next) {
+    try {
+      if (req.user.cart.cartItemsMeta.cartItemsCount === 0)
+        return next(httpErrors.BadRequest('Cart is already empty.'));
+
+      await cartService.clearCart(req.user._id);
+      await userService.clearCart(req.user);
+      return res.status(200).json({
+        success: true,
+        cart: null,
+        user: new UserDto(req.user),
+      });
+    } catch (error) {
+      return next(httpErrors.InternalServerError('Error deleting cart items.'));
     }
   }
 }
