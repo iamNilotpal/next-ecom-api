@@ -1,6 +1,27 @@
-const { ADD_TO_CART } = require('../utils');
+const httpErrors = require('http-errors');
+const {
+  PersonalInfoValidation,
+  PasswordValidationSchema,
+} = require('../models/user-model');
+const { ADD_TO_CART, JoiValidateOptions } = require('../utils');
+const hashService = require('./hash-service');
 
 class UserService {
+  async updatePersonalInfo(user, personalInfo) {
+    user.firstName = personalInfo.firstName || user.firstName;
+    user.lastName = personalInfo.lastName || user.lastName;
+    user.email = personalInfo.email || user.email;
+    user.phone = personalInfo.phone || user.phone;
+    user.address.pincode = personalInfo.address.pincode || user.address.pincode;
+    user.address.state = personalInfo.address.state || user.address.state;
+    user.address.town = personalInfo.address.town || user.address.town;
+    return user.save();
+  }
+
+  async validatePersonalInfo(info) {
+    return PersonalInfoValidation.validateAsync(info, JoiValidateOptions);
+  }
+
   async addToCart(user, cart, productInfo) {
     //  First find the cart item in user cartItems array.
     const item = this.findCartItem(user.cart.cartItems, productInfo.productId);
@@ -58,6 +79,29 @@ class UserService {
       subTotal: 0,
     };
     return user.save();
+  }
+
+  async updatePassword(user, data) {
+    try {
+      const { oldPassword, newPassword } =
+        await PasswordValidationSchema.validateAsync(data, JoiValidateOptions);
+
+      if (oldPassword.toLowerCase() === newPassword.toLowerCase())
+        throw httpErrors.BadRequest('Passwords must be different.');
+
+      const isValid = await hashService.checkPassword(
+        oldPassword,
+        user.password
+      );
+      if (!isValid) throw httpErrors.BadGateway("Password doesn't match.");
+
+      const hashedPassword = await hashService.hashPassword(newPassword);
+      user.password = hashedPassword;
+      return user.save();
+    } catch (error) {
+      if (error.isJoi) error.status = 422;
+      throw error;
+    }
   }
 
   findCartItem(cartItems, productId) {

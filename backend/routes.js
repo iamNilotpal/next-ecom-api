@@ -2,6 +2,7 @@ const router = require('express').Router();
 const authController = require('./controllers/auth-controller');
 const cartController = require('./controllers/cart-controller');
 const productsController = require('./controllers/products-controller');
+const userController = require('./controllers/user-controller');
 const authMiddleware = require('./middlewares/auth-middleware');
 
 /* --------- AUTH ---------- */
@@ -20,4 +21,11 @@ router.patch('/update-cart', authMiddleware, cartController.updateCart);
 router.delete('/remove', authMiddleware, cartController.removeCartItem);
 router.delete('/clear-cart', authMiddleware, cartController.clearCart);
 
+/* --------- User ---------- */
+router.patch(
+  '/personal-info',
+  authMiddleware,
+  userController.updatePersonalInfo
+);
+router.patch('/update-password', authMiddleware, userController.changePassword);
 module.exports = router;
