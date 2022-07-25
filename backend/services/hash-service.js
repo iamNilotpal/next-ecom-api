@@ -5,8 +5,8 @@ class HashService {
     return bcrypt.hash(password, 13);
   }
 
-  async comparePassword(password, hashedPassword) {
-    return bcrypt.compare(password, hashedPassword);
+  async checkPassword(password, encryptedPassword) {
+    return bcrypt.compare(password, encryptedPassword);
   }
 }
 

@@ -1,8 +1,8 @@
 const httpErrors = require('http-errors');
 const UserDto = require('../dtos/user-dto');
-const hashService = require('../services/hash-service');
 const tokenService = require('../services/token-service');
 const authService = require('../services/auth-service');
+const hashService = require('../services/hash-service');
 
 class AuthController {
   async register(req, res, next) {
@@ -43,7 +43,7 @@ class AuthController {
       if (!user)
         return next(httpErrors.Unauthorized('Invalid email or password.'));
 
-      const isValidPassword = await hashService.comparePassword(
+      const isValidPassword = await hashService.checkPassword(
         password,
         user.password
       );
@@ -53,7 +53,6 @@ class AuthController {
 
       const accessToken = await tokenService.accessToken({ id: user._id });
       const refreshToken = await tokenService.refreshToken({ id: user._id });
-
       tokenService.setAccessToken(res, accessToken);
       tokenService.setRefreshToken(res, refreshToken);
 
