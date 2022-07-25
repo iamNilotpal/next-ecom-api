@@ -5,6 +5,7 @@ const {
 } = require('../models/user-model');
 const { ADD_TO_CART, JoiValidateOptions } = require('../utils');
 const hashService = require('./hash-service');
+const cartService = require('./cart-service');
 
 class UserService {
   async updatePersonalInfo(user, personalInfo) {
@@ -102,6 +103,11 @@ class UserService {
       if (error.isJoi) error.status = 422;
       throw error;
     }
+  }
+
+  async deleteAccount(user) {
+    await cartService.clearCart(user._id);
+    return user.remove();
   }
 
   findCartItem(cartItems, productId) {

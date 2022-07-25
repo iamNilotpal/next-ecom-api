@@ -126,7 +126,7 @@ class CartService {
 
   async clearCart(customerId) {
     const cart = await this.findCart({ customerId });
-    return cart.remove();
+    return cart?.remove();
   }
 
   checkUserCart(user) {

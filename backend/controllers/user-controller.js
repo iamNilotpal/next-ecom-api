@@ -43,6 +43,20 @@ class UserController {
       return next(error);
     }
   }
+
+  async deleteAccount(req, res, next) {
+    try {
+      await userService.deleteAccount(req.user);
+      await tokenService.deleteRefreshToken(req.cookies.refreshToken);
+      tokenService.clearCookies(res);
+      return res.status(200).json({
+        success: true,
+        user: null,
+      });
+    } catch (error) {
+      return next(httpErrors.InternalServerError('Something went wrong.'));
+    }
+  }
 }
 
 module.exports = new UserController();

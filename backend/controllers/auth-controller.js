@@ -97,7 +97,7 @@ class AuthController {
       const user = await authService.findUser({ _id: tokenData.userId });
       if (!user) return next(httpErrors.NotFound("User doesn't exist."));
 
-      await tokenData.remove();
+      await tokenData?.remove();
       const accessToken = await tokenService.accessToken({ id: user._id });
       const refreshToken = await tokenService.refreshToken({ id: user._id });
 
