@@ -2,7 +2,7 @@ const httpErrors = require('http-errors');
 const UserDto = require('../dtos/user-dto');
 const hashService = require('../services/hash-service');
 const tokenService = require('../services/token-service');
-const userService = require('../services/user-service');
+const authService = require('../services/auth-service');
 
 class AuthController {
   async register(req, res, next) {
@@ -12,11 +12,11 @@ class AuthController {
       if (!firstName || !lastName || !email || !password || !phone || !address)
         return next(httpErrors.BadRequest('All fields are required.'));
 
-      const data = await userService.validateUserData(req.body);
-      const exist = await userService.findUser({ email: data.email });
+      const data = await authService.validateUserData(req.body);
+      const exist = await authService.findUser({ email: data.email });
       if (exist) return next(httpErrors.Conflict('User already exist.'));
 
-      const user = await userService.createUser(data);
+      const user = await authService.createUser(data);
       const accessToken = await tokenService.accessToken({ id: user._id });
       const refreshToken = await tokenService.refreshToken({ id: user._id });
 
@@ -39,7 +39,7 @@ class AuthController {
       if (!email || !password)
         return next(httpErrors.BadRequest('All fields are required.'));
 
-      const user = await userService.findUser({ email });
+      const user = await authService.findUser({ email });
       if (!user)
         return next(httpErrors.Unauthorized('Invalid email or password.'));
 
@@ -95,7 +95,7 @@ class AuthController {
       const tokenData = await tokenService.findRefreshToken(token, data.id);
       if (!tokenData) return next(httpErrors.Unauthorized('Token expired.'));
 
-      const user = await userService.findUser({ _id: tokenData.userId });
+      const user = await authService.findUser({ _id: tokenData.userId });
       if (!user) return next(httpErrors.NotFound("User doesn't exist."));
 
       await tokenData.remove();

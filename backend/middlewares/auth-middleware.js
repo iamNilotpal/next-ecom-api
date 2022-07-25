@@ -1,6 +1,6 @@
 const httpErrors = require('http-errors');
 const tokenService = require('../services/token-service');
-const userService = require('../services/user-service');
+const authService = require('../services/auth-service');
 
 async function authMiddleware(req, res, next) {
   const { accessToken, refreshToken } = req.cookies;
@@ -19,7 +19,7 @@ async function authMiddleware(req, res, next) {
       case 3 -> Invaid or expired token will lead to catch block.
     */
     const { id } = await tokenService.verifyAccessToken(accessToken);
-    const user = await userService.findUser({ _id: id });
+    const user = await authService.findUser({ _id: id });
     if (!user) {
       tokenService.clearCookies(res);
       if (refreshToken) await tokenService.deleteRefreshToken(refreshToken);
@@ -45,7 +45,7 @@ async function authMiddleware(req, res, next) {
     */
       const { refreshToken: token } = req.cookies;
       const userData = await tokenService.verifyRefreshToken(token);
-      const user = await userService.findUser({ _id: userData.id });
+      const user = await authService.findUser({ _id: userData.id });
 
       if (!user) {
         tokenService.clearCookies(res);

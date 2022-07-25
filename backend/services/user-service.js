@@ -1,27 +1,6 @@
-const httpErrors = require('http-errors');
-const { User, UserValidation } = require('../models/user-model');
-const { JoiValidateOptions, ADD_TO_CART } = require('../utils');
-const hashService = require('./hash-service');
+const { ADD_TO_CART } = require('../utils');
 
-class UserServices {
-  async validateUserData(data) {
-    return UserValidation.validateAsync(data, JoiValidateOptions);
-  }
-
-  async createUser(data) {
-    try {
-      const hashedPassword = await hashService.hashPassword(data.password);
-      const user = new User({ ...data, password: hashedPassword });
-      return user.save();
-    } catch (error) {
-      throw httpErrors.InternalServerError('Something went wrong. Try again.');
-    }
-  }
-
-  async findUser(filter) {
-    return User.findOne(filter).exec();
-  }
-
+class UserService {
   async addToCart(user, cart, productInfo) {
     //  First find the cart item in user cartItems array.
     const item = this.findCartItem(user.cart.cartItems, productInfo.productId);
@@ -88,4 +67,4 @@ class UserServices {
   }
 }
 
-module.exports = new UserServices();
+module.exports = new UserService();
