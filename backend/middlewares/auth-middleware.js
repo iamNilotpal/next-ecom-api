@@ -22,7 +22,8 @@ async function authMiddleware(req, res, next) {
     const user = await authService.findUser({ _id: id });
     if (!user) {
       tokenService.clearCookies(res);
-      if (refreshToken) await tokenService.deleteRefreshToken(refreshToken);
+      if (refreshToken)
+        await tokenService.deleteRefreshToken({ token: refreshToken });
       return next(httpErrors.Unauthorized('Session expired. Login again'));
     }
 
@@ -49,7 +50,7 @@ async function authMiddleware(req, res, next) {
 
       if (!user) {
         tokenService.clearCookies(res);
-        await tokenService.deleteRefreshToken(token);
+        await tokenService.deleteRefreshToken({ token });
         return next(httpErrors.Unauthorized('Session expired. Login again'));
       }
 

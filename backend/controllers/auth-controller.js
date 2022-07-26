@@ -70,12 +70,12 @@ class AuthController {
       const { refreshToken } = req.cookies;
 
       tokenService.clearCookies(res);
-      await tokenService.deleteRefreshToken(refreshToken);
+      await tokenService.deleteRefreshToken({ token: refreshToken });
       return res.status(200).json({ success: true, user: null });
     } catch (error) {
       tokenService.clearCookies(res);
       // Retrying to delete refresh token
-      await tokenService.deleteRefreshToken(refreshToken);
+      await tokenService.deleteRefreshToken({ token: refreshToken });
       return res.status(200).json({
         success: true,
         user: null,
