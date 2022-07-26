@@ -1,7 +1,7 @@
 const httpErrors = require('http-errors');
 const crypto = require('crypto');
 const { User, UserValidation } = require('../models/user-model');
-const { JoiValidateOptions } = require('../utils');
+const { JoiValidateOptions } = require('../constants');
 const hashService = require('./hash-service');
 
 class AuthService {

@@ -3,7 +3,7 @@ const userService = require('../services/user-service');
 const tokenService = require('../services/token-service');
 const UserDto = require('../dtos/user-dto');
 const Joi = require('joi');
-const { JoiValidateOptions } = require('../utils');
+const { JoiValidateOptions } = require('../constants');
 const authService = require('../services/auth-service');
 const hashService = require('../services/hash-service');
 

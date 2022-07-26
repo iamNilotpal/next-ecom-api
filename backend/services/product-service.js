@@ -1,6 +1,6 @@
 const { CartValidation } = require('../models/cart-model');
 const { Product } = require('../models/product-model');
-const { JoiValidateOptions } = require('../utils');
+const { JoiValidateOptions } = require('../constants');
 
 class ProductService {
   async allProducts() {

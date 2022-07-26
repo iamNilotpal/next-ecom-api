@@ -4,7 +4,7 @@ const userService = require('../services/user-service');
 const cartService = require('../services/cart-service');
 const UserDto = require('../dtos/user-dto');
 const CartDto = require('../dtos/cart-dto');
-const { ADD_TO_CART, REMOVE_FROM_CART } = require('../utils');
+const { ADD_TO_CART, REMOVE_FROM_CART } = require('../constants');
 
 class CartController {
   async getCart(req, res, next) {

@@ -4,7 +4,7 @@ const {
   PersonalInfoValidation,
   PasswordValidationSchema,
 } = require('../models/user-model');
-const { ADD_TO_CART, JoiValidateOptions } = require('../utils');
+const { ADD_TO_CART, JoiValidateOptions } = require('../constants');
 const hashService = require('./hash-service');
 const cartService = require('./cart-service');
 
