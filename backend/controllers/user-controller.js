@@ -10,7 +10,7 @@ const hashService = require('../services/hash-service');
 class UserController {
   async updatePersonalInfo(req, res, next) {
     try {
-      // Validate req.body if OK then update user information.
+      // * Validate req.body if OK then update user information.
       await userService.validatePersonalInfo(req.body);
       const user = await userService.updatePersonalInfo(req.user, personalInfo);
 
@@ -31,14 +31,14 @@ class UserController {
     try {
       // Validate passwords
       const user = await userService.updatePassword(req.user, req.body);
-      // Remove the refreshtoken corresponding to the user
+      // Remove the refresh token corresponding to the user
       await tokenService.deleteRefreshToken({
         token: req.cookies.refreshToken,
       });
       // Clear cookies
       tokenService.clearCookies(res);
 
-      // Gennerate new tokens and attack to the cookie.
+      // * Generate new tokens and attack to the cookie.
       const accessToken = await tokenService.accessToken({ id: user._id });
       const refreshToken = await tokenService.refreshToken({ id: user._id });
       tokenService.setAccessToken(res, accessToken);
@@ -55,7 +55,7 @@ class UserController {
 
   async sendPasswordResetMail(req, res, next) {
     try {
-      // First validate email and chck against user collection.
+      // *First validate email and check against user collection.
       // If user doesn't exist send 404 error
       const email = await Joi.string()
         .trim()
@@ -69,29 +69,29 @@ class UserController {
         return next(httpErrors.NotFound("User doesn't exist with this email."));
 
       // Generate random OTP -> 4digits
-      // Add 10 mins to the current time that will be the expiry time.
-      // Construct hash using the data.
+      // ? Add 10 mins to the current time that will be the expiry time.
+      // ? Construct hash using the data.
       const otp = authService.generateOtp();
-      const ttl = 1000 * 60 * 10; /* 10 Minutes ---- TTL -> Time To Live*/
-      const expires = Date.now() + ttl; /* Will expire after 10 minute */
-      const data = `${email}.${otp}.${expires}`; /* Will match with the hash provided by the user */
+      const ttl = 1000 * 60 * 10; // ? 10 Minutes ---- TTL -> Time To Live.
+      const expires = Date.now() + ttl; // ? Will expire after 10 minute.
+      const data = `${email}.${otp}.${expires}`; // ? Will match with the hash provided by the user.
 
       const hash = hashService.hashOTP(data);
-      // Set the hash to cookie which will be check aginst verifyOTP process.
+      // Set the hash to cookie which will be check against verifyOTP process.
       tokenService.setHashToCookie(res, {
         hash: `${hash}.${expires}`,
         expires,
       });
 
-      // Some additional cookie to perove identity and verification.
-      // Access Token that will be verified in verify OTP process.
-      // Set isVerified property to false which means user hasn't verified the otp.
-      // Will be set to true when verification is done.
+      // ? Some additional cookie to prove identity and verification.
+      // ? Access Token that will be verified in verify OTP process.
+      // ? Set isVerified property to false which means user hasn't verified the otp.
+      // ? Will be set to true when verification is done.
       const token = await tokenService.accessToken({
         isVerified: false,
         email,
       });
-      tokenService.setOTPVerificationToCoookie(res, token);
+      tokenService.setOTPVerificationToCookie(res, token);
       // TODO REMOVE COMMENT
       // await userService.sendPasswordResetMail(otp, email);
 
@@ -116,8 +116,8 @@ class UserController {
       if (!hash || !verified_sid)
         return next(httpErrors.BadRequest('Maybe next time );.'));
 
-      // First verify the verified_sid token. If OK then we will get the user email.
-      // Now check user exist with that email not not send error message.
+      // * First verify the verified_sid token. If OK then we will get the user email.
+      // * Now check user exist with that email not not send error message.
       const { email } = await tokenService.verifyOtpToken(verified_sid);
       const user = await authService.findUser({ email });
       if (!user) return next(httpErrors.NotFound("User doesn't exist."));
@@ -127,7 +127,7 @@ class UserController {
       // Now generate verified_sid token and set isVerified property to true.
       // Which will be check while resetting the password in next step.
       const token = await tokenService.accessToken({ isVerified: true, email });
-      tokenService.setOTPVerificationToCoookie(res, token);
+      tokenService.setOTPVerificationToCookie(res, token);
       // Clear the otp hash from cookie
       res.clearCookie('hash');
 
@@ -164,7 +164,7 @@ class UserController {
       if (!isVerified)
         return next(httpErrors.Unauthorized('OTP is not verified.'));
 
-      /* If verification is done then clear all cookies and the refreshtoken
+      /* If verification is done then clear all cookies and the refresh token
         for that user.
       */
       tokenService.clearCookies(res);
@@ -172,7 +172,7 @@ class UserController {
       await tokenService.deleteRefreshToken({ userId: user._id });
 
       // Now hash the new password and update with current user password.
-      const hashedPassword = await hashService.hashPassword(password);
+      const hashed̥Password = await hashService.hashPassword(password);
       user.password = hashedPassword;
       await user.save();
 

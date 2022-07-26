@@ -29,7 +29,7 @@ class CartService {
 
     /* If the cart exist for the customer then check whether the product they want to add to cart exists or not */
     const product = cart.products.find(
-      /* GOTCHA : If you don't convert id to string it doesn't matchs */
+      /* GOTCHA : If you don't convert id to string it doesn't matches */
       (p) => p.productId.toString() === storedProduct._id.toString()
     );
 
@@ -67,13 +67,13 @@ class CartService {
       if (item.productId.toString() !== data.productId.toString()) return item;
 
       if (data.type === REMOVE_FROM_CART && item.quantity < data.quantity)
-        throw httpErrors.BadRequest('Bhai kiya kr rha hai tu.');
+        throw httpErrors.BadRequest('Maybe next time.');
 
       if (data.type === REMOVE_FROM_CART && item.quantity - data.quantity < 1)
-        throw httpErrors.BadRequest('Atleast one item should be present.');
+        throw httpErrors.BadRequest('At least one item should be present.');
 
       if (data.quantity !== Math.abs(data.quantity))
-        throw httpErrors.BadRequest('Bhai kiya kr rha hai tu.');
+        throw httpErrors.BadRequest('Maybe next time.');
 
       product = item;
       if (data.type === ADD_TO_CART) {

@@ -28,13 +28,13 @@ class UserService {
       JoiValidateOptions
     );
     if (Object.entries(personalInfo).length === 0)
-      throw httpErrors.BadRequest('Atleast one field is required.');
+      throw httpErrors.BadRequest('At least one field is required.');
   }
 
   async addToCart(user, cart, productInfo) {
     //  First find the cart item in user cartItems array.
     const item = this.findCartItem(user.cart.cartItems, productInfo.productId);
-    // case 1 -> Item doesn't exist push it to the array and update meatdata.
+    // case 1 -> Item doesn't exist push it to the array and update metadata.
     if (!item) {
       user.cart.cartItems.push({
         productId: productInfo.productId,
@@ -141,7 +141,7 @@ class UserService {
 
     if (password.length < 5)
       throw httpErrors.UnprocessableEntity(
-        'Password must be atleast 5 characters long.'
+        'Password must be at least 5 characters long.'
       );
   }
 }

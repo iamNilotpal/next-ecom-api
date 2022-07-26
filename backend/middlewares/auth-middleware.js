@@ -14,9 +14,9 @@ async function authMiddleware(req, res, next) {
 
   try {
     /* Now verify the access token, If it is valid then get the id and find the corresponding user.
-      case 1 -> User doesn't exist then return Uantuhorized for Not Found error.
+      case 1 -> User doesn't exist then return Unauthorized for Not Found error.
       case 2 -> User exist so attach the user in the req object and call next().
-      case 3 -> Invaid or expired token will lead to catch block.
+      case 3 -> Invalid or expired token will lead to catch block.
     */
     const { id } = await tokenService.verifyAccessToken(accessToken);
     const user = await authService.findUser({ _id: id });
@@ -30,7 +30,7 @@ async function authMiddleware(req, res, next) {
     req.user = user;
     next();
   } catch (error) {
-    /* If the error is something else other than TokenExpiredError return Unauthotized error. 
+    /* If the error is something else other than TokenExpiredError return Unauthorized error. 
       Which means the client has modified the tokens and also clear the cookies.
     */
     if (error.name === 'JsonWebTokenError') {
@@ -40,9 +40,9 @@ async function authMiddleware(req, res, next) {
 
     try {
       /* Now verify the refresh token, If it is valid then get the id and find the corresponding user.
-      case 1 -> User doesn't exist then return Uantuhorized for Not Found error.
+      case 1 -> User doesn't exist then return Unauthorized for Not Found error.
       case 2 -> User exist so attach the user in the req object and call next().
-      case 3 -> Invaid or expired token will lead to catch block.
+      case 3 -> Invalid or expired token will lead to catch block.
     */
       const { refreshToken: token } = req.cookies;
       const userData = await tokenService.verifyRefreshToken(token);

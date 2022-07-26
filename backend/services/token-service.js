@@ -52,7 +52,7 @@ class TokenService {
     });
   }
 
-  setOTPVerificationToCoookie(res, token) {
+  setOTPVerificationToCookie(res, token) {
     res.cookie('verified_sid', token, {
       maxAge: 1000 * 60 * 10,
       httpOnly: true,
