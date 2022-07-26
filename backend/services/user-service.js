@@ -10,6 +10,8 @@ const cartService = require('./cart-service');
 
 class UserService {
   async updatePersonalInfo(user, personalInfo) {
+    // Update information only if the user hash provided.
+    // If not then set it to pervious values.
     user.firstName = personalInfo.firstName || user.firstName;
     user.lastName = personalInfo.lastName || user.lastName;
     user.email = personalInfo.email || user.email;
@@ -21,7 +23,12 @@ class UserService {
   }
 
   async validatePersonalInfo(info) {
-    return PersonalInfoValidation.validateAsync(info, JoiValidateOptions);
+    const personalInfo = await PersonalInfoValidation.validateAsync(
+      info,
+      JoiValidateOptions
+    );
+    if (Object.entries(personalInfo).length === 0)
+      throw httpErrors.BadRequest('Atleast one field is required.');
   }
 
   async addToCart(user, cart, productInfo) {
@@ -74,12 +81,7 @@ class UserService {
   }
 
   async clearCart(user) {
-    user.cart.cartItems = [];
-    user.cart.cartItemsMeta = {
-      ...user.cart.cartItemsMeta,
-      cartItemsCount: 0,
-      subTotal: 0,
-    };
+    user.cart = {};
     return user.save();
   }
 
@@ -118,12 +120,11 @@ class UserService {
         to: email,
         from: process.env.SENDGRID_EMAIL,
         subject: 'Password Reset Email',
-        text: `Your OTP for Next E-COM is ${otp}. OTP expires in 10 minutes.`,
-        html: `<strong>Your OTP for Next E-COM is ${otp}. OTP expires in 10 minutes.</strong>`,
+        text: `Your OTP for Next E-Commerce is ${otp}. OTP expires in 10 minutes.`,
+        html: `<strong>Your OTP for Next E-Commerce is ${otp}. OTP expires in 10 minutes.</strong>`,
       };
       await sendGrid.send(msg);
     } catch (error) {
-      console.log(error);
       throw httpErrors.InternalServerError('Error sending email.');
     }
   }
