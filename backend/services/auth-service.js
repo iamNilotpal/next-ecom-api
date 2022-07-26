@@ -1,4 +1,5 @@
 const httpErrors = require('http-errors');
+const crypto = require('crypto');
 const { User, UserValidation } = require('../models/user-model');
 const { JoiValidateOptions } = require('../utils');
 const hashService = require('./hash-service');
@@ -16,6 +17,22 @@ class AuthService {
     } catch (error) {
       throw httpErrors.InternalServerError('Something went wrong. Try again.');
     }
+  }
+
+  generateOtp() {
+    const otp = crypto.randomInt(1000, 9999);
+    return otp;
+  }
+
+  validateOTP(info) {
+    const [hashedOTP, expires] = info.hash.split('.');
+    if (expires < Date.now()) throw httpErrors.BadRequest('OTP has expired.');
+
+    const { email, otp } = info;
+    const data = `${email}.${otp}.${expires}`;
+    const isValid = hashService.verifyOTP(hashedOTP, data);
+
+    if (!isValid) throw httpErrors.BadRequest("OTP doesn't match.");
   }
 
   async findUser(filter) {

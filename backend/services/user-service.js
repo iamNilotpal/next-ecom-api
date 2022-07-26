@@ -1,4 +1,5 @@
 const httpErrors = require('http-errors');
+const sendGrid = require('@sendgrid/mail');
 const {
   PersonalInfoValidation,
   PasswordValidationSchema,
@@ -94,7 +95,7 @@ class UserService {
         oldPassword,
         user.password
       );
-      if (!isValid) throw httpErrors.BadGateway("Password doesn't match.");
+      if (!isValid) throw httpErrors.BadRequest("Password doesn't match.");
 
       const hashedPassword = await hashService.hashPassword(newPassword);
       user.password = hashedPassword;
@@ -110,10 +111,37 @@ class UserService {
     return user.remove();
   }
 
+  async sendPasswordResetMail(otp, email) {
+    try {
+      sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
+      const msg = {
+        to: email,
+        from: process.env.SENDGRID_EMAIL,
+        subject: 'Password Reset Email',
+        text: `Your OTP for Next E-COM is ${otp}. OTP expires in 10 minutes.`,
+        html: `<strong>Your OTP for Next E-COM is ${otp}. OTP expires in 10 minutes.</strong>`,
+      };
+      await sendGrid.send(msg);
+    } catch (error) {
+      console.log(error);
+      throw httpErrors.InternalServerError('Error sending email.');
+    }
+  }
+
   findCartItem(cartItems, productId) {
     return cartItems.find(
       (item) => item.productId.toString() === productId.toString()
     );
+  }
+
+  checkNewPassword(password) {
+    if (!password)
+      throw httpErrors.UnprocessableEntity('Password must be provided.');
+
+    if (password.length < 5)
+      throw httpErrors.UnprocessableEntity(
+        'Password must be atleast 5 characters long.'
+      );
   }
 }
 

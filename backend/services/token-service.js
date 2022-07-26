@@ -1,6 +1,7 @@
 const util = require('util');
 const JWT = require('jsonwebtoken');
 const RefreshToken = require('../models/token-model');
+const httpErrors = require('http-errors');
 
 const signToken = util.promisify(JWT.sign);
 const verifyToken = util.promisify(JWT.verify);
@@ -18,17 +19,13 @@ class TokenService {
   }
 
   async refreshToken(payload) {
-    try {
-      const refreshToken = await signToken(payload, JWT_REFRESH_TOKEN_SECRET, {
-        expiresIn: '1y',
-        issuer: process.env.BASE_URL,
-        audience: String(payload.id),
-      });
-      await this.storeRefreshToken(refreshToken, payload.id);
-      return refreshToken;
-    } catch (error) {
-      throw error;
-    }
+    const refreshToken = await signToken(payload, JWT_REFRESH_TOKEN_SECRET, {
+      expiresIn: '1y',
+      issuer: process.env.BASE_URL,
+      audience: String(payload.id),
+    });
+    await this.storeRefreshToken(refreshToken, payload.id);
+    return refreshToken;
   }
 
   async storeRefreshToken(token, userId) {
@@ -38,6 +35,26 @@ class TokenService {
   setTokenCookie(res, key, data) {
     res.cookie(key, data.token, {
       maxAge: data.age,
+      httpOnly: true,
+      sameSite: 'none',
+      path: '/',
+      secure: true,
+    });
+  }
+
+  setHashToCookie(res, data) {
+    res.cookie('hash', data.hash, {
+      maxAge: data.expires,
+      httpOnly: true,
+      sameSite: 'none',
+      path: '/',
+      secure: true,
+    });
+  }
+
+  setOTPVerificationToCoookie(res, token) {
+    res.cookie('verified_sid', token, {
+      maxAge: 1000 * 60 * 10,
       httpOnly: true,
       sameSite: 'none',
       path: '/',
@@ -72,12 +89,20 @@ class TokenService {
     return verifyToken(token, JWT_REFRESH_TOKEN_SECRET);
   }
 
+  async verifyOtpToken(token) {
+    return verifyToken(token, JWT_ACCESS_TOKEN_SECRET)
+      .then((data) => data)
+      .catch(() => {
+        throw httpErrors.BadRequest('Token expired. Resend OTP.');
+      });
+  }
+
   async findRefreshToken(token, userId) {
     return RefreshToken.findOne({ token, userId }).exec();
   }
 
-  async deleteRefreshToken(token) {
-    return RefreshToken.deleteOne({ token }).exec();
+  async deleteRefreshToken(filter) {
+    return RefreshToken.deleteOne(filter).exec();
   }
 }
 
