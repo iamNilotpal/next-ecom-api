@@ -13,6 +13,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // END POINT
+app.get('/', (_, res) =>
+  res.status(200).json({
+    success: true,
+    data: require('./api-routes'),
+  })
+);
 app.use('/api', require('./routes'));
 
 // --------------- 404 Error Handler --------------- //
