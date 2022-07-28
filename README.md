@@ -1,22 +1,17 @@
-# Next E-COMMERCE
-
+# E-Commerce API
 
 ## Run Locally
 
 Clone the project
 
 ```bash
-  git clone https://github.com/iamNilotpal/next-ecommerce.git
+  git clone https://github.com/iamNilotpal/next-ecom-api.git
 ```
 
-Go to the project directories
+Go to the project directory
 
 ```bash
-  cd next-ecommerce/frontend
-```
-
-```bash
-  cd next-ecommerce/backend
+  cd next-ecom
 ```
 
 Install the dependencies by running
@@ -28,11 +23,6 @@ Install the dependencies by running
 Start Frontend
 
 ```bash
-  npm run start
-```
-
-Start Backend
-
-```bash
   npm run dev
+  yarn dev
 ```
