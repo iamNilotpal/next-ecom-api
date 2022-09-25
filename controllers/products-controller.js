@@ -1,5 +1,5 @@
-const productService = require('../services/product-service');
 const httpErrors = require('http-errors');
+const productService = require('../services/product-service');
 const ProductDto = require('../dtos/product-dto');
 
 class ProductsController {

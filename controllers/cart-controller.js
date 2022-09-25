@@ -72,7 +72,7 @@ class CartController {
       if (![ADD_TO_CART, REMOVE_FROM_CART].includes(type))
         return next(httpErrors.BadRequest('Invalid update operation.'));
 
-      // Chceck the user cart if it is empty throw 400 error
+      // Check the user cart if it is empty throw 400 error
       cartService.checkUserCart(req.user);
       const data = { productId, type, quantity };
 

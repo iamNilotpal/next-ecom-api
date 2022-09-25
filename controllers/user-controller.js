@@ -1,8 +1,8 @@
+const Joi = require('joi');
 const httpErrors = require('http-errors');
 const userService = require('../services/user-service');
 const tokenService = require('../services/token-service');
 const UserDto = require('../dtos/user-dto');
-const Joi = require('joi');
 const { JoiValidateOptions } = require('../constants');
 const authService = require('../services/auth-service');
 const hashService = require('../services/hash-service');
@@ -172,7 +172,7 @@ class UserController {
       await tokenService.deleteRefreshToken({ userId: user._id });
 
       // Now hash the new password and update with current user password.
-      const hashed̥Password = await hashService.hashPassword(password);
+      const hashedPassword = await hashService.hashPassword(password);
       user.password = hashedPassword;
       await user.save();
 

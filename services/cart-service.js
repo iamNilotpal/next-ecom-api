@@ -1,6 +1,6 @@
+const httpErrors = require('http-errors');
 const { Cart } = require('../models/cart-model');
 const productService = require('./product-service');
-const httpErrors = require('http-errors');
 const { REMOVE_FROM_CART, ADD_TO_CART } = require('../constants');
 
 class CartService {
